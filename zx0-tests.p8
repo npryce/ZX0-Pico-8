@@ -72,7 +72,7 @@ zx0_tests = {
 		}
  );
  
- poem = zx0_test(
+ ["the second coming"] = zx0_test(
   [[Turning and turning in the widening gyre
 The falcon cannot hear the falconer;
 Things fall apart; the centre cannot hold;
@@ -150,113 +150,8 @@ Are full of passionate intensity.]],
 	);
 }
 -->8
--- elias gamma tests
-
-function bits(t)
- local i = 1
- return function()
-  local bit = t[i]
-  i += 1
-  return bit
- end
-end
-
-function encoding(t)
- return function()
-  local decoded = 
-    read_elias_gamma(
-      t.mode or 0,
-      bits(t.bits))
-  
-  assert_eq {
-   expected = t.value,
-   actual = decoded
-  }
- end
-end
-
-elias_gamma_tests = {
-	mode_0 = {
-	 [1] = encoding {
-	  value = 1, 
-	  bits = {
-	  	 1
-	  }
-	 };
-	 
-	 [2] = encoding {
-	  value = 2,
-	  bits = {
-	 	 0,0,
-	 	 1
-	 	}
-	 };
-	 
-	 [3] = encoding {
-	  value = 3,
-	  bits = {
-	 	 0,1, 
-	 	 1
-	 	},
-	 };
-	 
-	 [4] = encoding {
-	  value = 4,
-	  bits = {
-	 	 0,0,0,0,
-	 	 1
-	 	}
-	 };
-	 
-	 [6] = encoding {
-	  value = 9,
-	  bits = {
-	 	 0,0, 0,0, 0,1, 
-	 	 1
-	 	}
-	 };
-	 
-	 
-	 [256] = encoding {
-	  value = 256,
-	  bits = {
-	   0,0, 0,0, 0,0, 0,0, 
-	   0,0, 0,0, 0,0, 0,0, 
-	   1
-	  }
-	 }
-	},
-	
-	mode_1 = {
-	 [6] = encoding {
-	  value = 9,
-	  bits = {
-	 	 0,1, 0,1, 0,0, 
-	 	 1
-	 	},
-	 	mode = 1
-	 };
-	 
-	 [256] = encoding {
-	  value = 256,
-	  bits = {
-	   0,1, 0,1, 0,1, 0,1, 
-	   0,1, 0,1, 0,1, 0,1, 
-	   1
-	  },
-	  mode = 1
-	 }		
-	}
-}
-
--->8
 -- suite
 
 
-tests = {
-	["zx0 decompression"] = 
-		zx0_tests;
-	["interleaved elias gamma"] =
-		elias_gamma_tests;
-}
+tests = zx0_tests
 

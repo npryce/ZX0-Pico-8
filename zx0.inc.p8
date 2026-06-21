@@ -3,14 +3,6 @@ version 43
 __lua__
 -- zx0 decompresser
 
-function read_elias_gamma(mode, read_bit)
-    local v = 1
-    while read_bit() == 0 do
-        v = ((v << 1)|read_bit()) ^^ mode
-    end
-    return v
-end
-
 function zx0_decompress(
  get_input_byte,
  get_output_byte,
@@ -42,12 +34,15 @@ function zx0_decompress(
             end
         end
 
-        local bit = min(1, bit_value & bit_mask)
-        return bit
+        return min(1, bit_value & bit_mask)
     end
 
-    local function read_var(msb)
-        return read_elias_gamma(msb or 0, read_bit)
+    local function read_var(mode)
+        local v = 1
+        while read_bit() == 0 do
+            v = ((v << 1)|read_bit()) ^^ (mode or 0)
+        end
+        return v
     end
 
     local function write_byte(b)
@@ -63,11 +58,10 @@ function zx0_decompress(
         end
     end
 
-    -- states
     local copy_literals, copy_from_last_offset, copy_from_new_offset
 
     copy_literals = function()
-        local n = read_var()
+        local n = read_var(0)
         for _ = 1,n do
             write_byte(read_byte())
         end
@@ -80,8 +74,7 @@ function zx0_decompress(
     end
 
     copy_from_last_offset = function()
-        local n = read_var()
-        copy_bytes(n)
+        copy_bytes(read_var(0))
 
         if read_bit() == 0 then
             return copy_literals()
@@ -98,7 +91,7 @@ function zx0_decompress(
         last_offset = msb * 128 - lsb
         backtrack = true
 
-        local n = read_var() + 1
+        local n = read_var(0) + 1
         copy_bytes(n)
 
         if read_bit() == 0 then
