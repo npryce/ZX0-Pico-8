@@ -8,13 +8,21 @@ __lua__
 -->8
 -- input/output adapters
 
+-- Input and output to/from memory
+
 #include zx0-mem-get.inc.p8
 
 #include zx0-mem-set.inc.p8
 
-#include zx0-table-get.inc.p8
+
+-- Input from strings of compressed data
 
 #include zx0-str-get.inc.p8
+
+
+-- Input from tables of compressed data
+
+#include zx0-table-get.inc.p8
 
 -->8
 -- zx0 tests
