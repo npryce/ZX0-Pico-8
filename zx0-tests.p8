@@ -31,16 +31,16 @@ function zx0_test(
 	compressed
 )
  return function()
-  local t = {s=""}
+  local t = {""}
   
 		zx0_decompress(
 			table_get(compressed),
-			strvar_get(t,"s"),
-			strvar_set(t,"s"))
+			strvar_get(t,1),
+			strvar_set(t,1))
 			
 		assert_eq {
 			expected = plain,
-			actual = t.s
+			actual = t[1]
 		}
 		
 		printh(" plain:      " 
