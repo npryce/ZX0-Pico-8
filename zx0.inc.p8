@@ -36,10 +36,10 @@ function zx0_decompress(
 		return min(1, bit_value & bit_mask)
 	end
 
-	local function read_var(mode)
+	local function read_var(invert)
 		local v = 1
 		while read_bit() == 0 do
-			v = ((v << 1)|read_bit()) ^^ (mode or 0)
+			v = (v<<1)|(read_bit()^^invert)
 		end
 		return v
 	end
@@ -60,8 +60,7 @@ function zx0_decompress(
 	local copy_literals, copy_from_last_offset, copy_from_new_offset
 
 	copy_literals = function()
-		local n = read_var(0)
-		for _ = 1,n do
+		for _ = 1,read_var(0) do
 			write_byte(read_byte())
 		end
 
@@ -86,8 +85,8 @@ function zx0_decompress(
 		local msb = read_var(1)
 		if (msb == 256) return
 
-		local lsb = (read_byte() >>> 1)\1
-		last_offset = msb * 128 - lsb
+        local lsb = (read_byte() >> 1)\1
+		last_offset = (msb * 128) - lsb
 		backtrack = true
 
 		copy_bytes(read_var(0) + 1)

@@ -4,6 +4,6 @@ __lua__
 
 function mem_get(start_addr)
 	return function(i)
-		return peek(start_addr+i)
+		return @(start_addr+i)
 	end
 end
