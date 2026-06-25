@@ -1,10 +1,17 @@
 # ZX0 Decompression for Pico-8
 
+## Compress
+
+Compress data outside Pico-8 using one of the [ZX0 implementations](https://github.com/einar-saukas/ZX0).
+
+To save space and tokens, the Pico-8 decompressor does not support ZX0's "classic", "prefixed", or "backward" modes.
+
+
 ## Decompress
 
 Include `zx0.inc.p8` into your program.
 
-Call `zx0_decompress(get_input_byte, get_output_byte, set_output_byte)` to decompress data. The function takes three parameters: "adapter" functions to read compressed data and generate uncompressed data that your program can use. 
+Call `zx0_decompress(get_input_byte, get_output_byte, set_output_byte)` to decompress data. The function parameters are three "adapter" functions to read compressed data and generate uncompressed data that your program can use. 
 
 For example, the following call uncompresses data from string _s_ into memory at address 0x8000:
 
@@ -26,7 +33,7 @@ set_output_byte: (offset, byte) -> nil
 
 The offset parameters are zero-based.  E.g. the first byte has offset 0, the second byte has offset 1, and so on. 
 
-ZX0-Pico-8 defines adapter functions to read/write from memory, strings, and tables. You can #include only the functions you need, to save tokens.
+ZX0-Pico-8 defines adapter functions that read/write from memory, strings, and tables. You can #include only the functions you need to save tokens.
 
 
 ## Input and Output Adapters
@@ -48,6 +55,8 @@ ZX0-Pico-8 defines adapter functions to read/write from memory, strings, and tab
 
 `str_get(s)` returns a function that gets bytes from string `s`. It can only be used for the _get_input_byte_ parameter, because the string _s_ is immutable.  To decompress into a string, use the `strvar` variants (see below).
 
+The function translates zero-based byte offsets to 1-based character indices. E.g. the byte with offset 0 is at character index 1.
+
 
 ### String variables
 
@@ -64,6 +73,8 @@ local t = {""} -- declare a table holding an empty string
 zx0_decompress(str_get(compressed_data), strvar_get(t,1), strvar_set(t,1))
 -- now t[1] contains the uncompressed data 
 ```
+
+Both functions translate zero-based byte offsets to 1-based character indices. E.g. the byte with offset 0 is at character index 1.
 
 ### Tables
 
