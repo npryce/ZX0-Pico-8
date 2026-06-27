@@ -1,5 +1,10 @@
 # ZX0 Decompression for Pico-8
 
+[ZX0](https://github.com/einar-saukas/ZX0) is a data compressor that provides a tradeoff between high compression ratio, and extremely simple fast decompression. It's especially appropriate for low-end platforms, including 8-bit computers like the ZX Spectrum.
+
+This is an implementation of ZX0 decompression for Pico-8. The decompression function uses 195 tokens.
+
+
 ## Compress
 
 Compress data outside Pico-8 using one of the [ZX0 implementations](https://github.com/einar-saukas/ZX0).
@@ -11,7 +16,7 @@ To save space and tokens, the Pico-8 decompressor does not support ZX0's "classi
 
 Include `zx0.inc.p8` into your program.
 
-Call `zx0_decompress(get_input_byte, get_output_byte, set_output_byte)` to decompress data. The function parameters are three "adapter" functions to read compressed data and generate uncompressed data that your program can use. 
+Call `zx0_decompress(get_input_byte, get_output_byte, set_output_byte)` to decompress data. The function parameters are three "adapter" functions to read compressed data and generate uncompressed data that your program can use.
 
 For example, the following call uncompresses data from string _s_ into memory at address 0x8000:
 
