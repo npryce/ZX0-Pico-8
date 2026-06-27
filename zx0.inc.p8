@@ -7,18 +7,17 @@ function zx0_decompress(
 	get_output_byte,
 	set_output_byte
 )
-	local last_offset, last_byte, bit_shift, input_count, output_count, backtrack, bit_value, msb = unpack(split"1,0,0,0,0")
+	local last_offset, bit_shift, input_count_m1, output_count,  bit_value, last_byte, temp = unpack(split"1,0,-1,0")
 
 	local function read_byte()
-		last_byte = get_input_byte(input_count)
-		input_count += 1
-		return last_byte
+		input_count_m1 += 1
+		return get_input_byte(input_count_m1)
 	end
 
 	local function read_bit()
-		if backtrack then
-			backtrack = false
-			return last_byte & 1
+		if last_byte then
+			temp, last_byte = last_byte & 1
+			return temp
 		else
 			bit_shift -= 1
 			if bit_shift == -1 then
@@ -63,11 +62,11 @@ function zx0_decompress(
 		end
 
 	::copy_from_new_offset::
-		msb = read_var(1)
-		if (msb == 256) return
+		temp = read_var(1) --msb
+		if (temp == 256) return
 
-		last_offset = msb * 128 - read_byte()\2
-		backtrack = true
+		last_byte = read_byte()
+		last_offset = temp * 128 - last_byte\2
 
 		copy_bytes(read_var(0) + 1)
 
