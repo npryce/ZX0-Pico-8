@@ -24,19 +24,32 @@ For example, the following call uncompresses data from string _s_ into memory at
 zx0_decompress(str_get(s), mem_get(0x8000), mem_set(0x8000))
 ```
 
-The type signatures of the adapter functions are:
+The expected behaviours of the adapter functions are:
 
 ```
-get_input_byte, get_output_byte: (offset) -> byte
+get_input_byte: (offset) -> byte
+```
+
+Return the next byte of compressed compressed.  The offset from the start of the stream is passed as a parameter, which can be used to simplify the implementation when the compressed data is being fetched from indexable storage, such as memory or a string.
+
+```
+get_output_byte: (offset) -> byte
+```
+
+Return a byte of uncompressed data that was stored previously during decompression.  The offset of the byte is passed as a parameter and must be used to calculate the real index of the byte in the output data.
+
+```
 set_output_byte: (offset, byte) -> nil
 ```
 
+Append a byte to the uncompressed output. The offset from the start of the output data is passed as a parameter, which can be used to simplify the implementation when the uncompressed data is being written to indexable storage, such as memory.
+
 The offset parameters are zero-based.  E.g. the first byte has offset 0, the second byte has offset 1, and so on. 
 
+
+## Predefined Input and Output Adapters
+
 ZX0-Pico-8 defines adapter functions that read/write from memory, strings, and tables. You can #include only the functions you need to save tokens.
-
-
-## Input and Output Adapters
 
 ### Memory
 
