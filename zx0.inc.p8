@@ -1,7 +1,6 @@
 pico-8 cartridge // http://www.pico-8.com
 version 43
 __lua__
-
 function zx0_decompress(
  get_input_byte,
  get_output_byte,
@@ -26,14 +25,10 @@ function zx0_decompress(
 			backtrack = false
 			return last_byte & 1
 		else
-			bit_mask = (bit_mask >> 1)\1
-			if bit_mask == 0 then
-				bit_value = read_byte()
-				bit_mask = 128
-			end
+			bit_mask = bit_mask\2
+			if (bit_mask == 0) bit_value,bit_mask = read_byte(),128
+			return min(1, bit_value & bit_mask)
 		end
-
-		return min(1, bit_value & bit_mask)
 	end
 
 	local function read_var(invert)
