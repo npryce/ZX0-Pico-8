@@ -8,13 +8,13 @@ function zx0_decompress(
 )
 	local
 	 input_count,
-  output_count,
-  last_offset,
-  last_byte,
-  bit_mask,
-  backtrack,
-  bit_value
-  = unpack(split"0,0,1,0,0")
+	 output_count,
+	 last_offset,
+	 last_byte,
+	 bit_mask,
+	 backtrack,
+	 bit_value
+	 = unpack(split"0,0,1,0,0")
 
 	local function read_byte()
 		last_byte = get_input_byte(input_count)
