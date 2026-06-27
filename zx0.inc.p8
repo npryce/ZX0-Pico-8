@@ -3,43 +3,35 @@ version 43
 __lua__
 
 function zx0_decompress(
- get_input_byte,
- get_output_byte,
- set_output_byte
+	get_input_byte,
+	get_output_byte,
+	set_output_byte
 )
-	local last_byte = 0
-	local backtrack = false
-	local bit_mask = 0
-	local bit_value
-	local last_offset = 1
-	local input_count = 0
-	local output_count = 0
+	local last_offset, bit_shift, input_count_m1, output_count,  bit_value, last_byte, temp = unpack(split"1,0,-1,0")
 
 	local function read_byte()
-		last_byte = get_input_byte(input_count)
-		input_count += 1
-		return last_byte
+		input_count_m1 += 1
+		return get_input_byte(input_count_m1)
 	end
 
 	local function read_bit()
-		if backtrack then
-			backtrack = false
-			return last_byte & 1
+		if last_byte then
+			temp, last_byte = last_byte & 1
+			return temp
 		else
-			bit_mask = (bit_mask >> 1)\1
-			if bit_mask == 0 then
-				bit_value = read_byte()
-				bit_mask = 128
+			bit_shift -= 1
+			if bit_shift == -1 then
+				bit_value, bit_shift = read_byte(), 7
 			end
+			return bit_value>>bit_shift & 1
 		end
-
-		return min(1, bit_value & bit_mask)
 	end
 
 	local function read_var(invert)
 		local v = 1
 		while read_bit() == 0 do
-			v = (v<<1)|(read_bit()^^invert)
+			v <<= 1
+			v |= read_bit()~invert
 		end
 		return v
 	end
@@ -57,46 +49,31 @@ function zx0_decompress(
 		end
 	end
 
-	local copy_literals, copy_from_last_offset, copy_from_new_offset
-
-	copy_literals = function()
+	::copy_literals::
 		for _ = 1,read_var(0) do
 			write_byte(read_byte())
 		end
 
 		if read_bit() == 0 then
-			return copy_from_last_offset()
-		else
-			return copy_from_new_offset()
+			-- ::copy_from_last_offset::
+			copy_bytes(read_var(0))
+
+			goto loop
 		end
-	end
 
-	copy_from_last_offset = function()
-		copy_bytes(read_var(0))
+	::copy_from_new_offset::
+		temp = read_var(1) --msb
+		if (temp == 256) return
 
-		if read_bit() == 0 then
-			return copy_literals()
-		else
-			return copy_from_new_offset()
-		end
-	end
-
-	copy_from_new_offset = function()
-		local msb = read_var(1)
-		if (msb == 256) return
-
-        local lsb = (read_byte() >> 1)\1
-		last_offset = (msb * 128) - lsb
-		backtrack = true
+		last_byte = read_byte()
+		last_offset = temp * 128 - last_byte\2
 
 		copy_bytes(read_var(0) + 1)
 
+	::loop::
 		if read_bit() == 0 then
-			return copy_literals()
+			goto copy_literals
 		else
-			return copy_from_new_offset()
+			goto copy_from_new_offset
 		end
-	end
-
-	copy_literals()
 end
