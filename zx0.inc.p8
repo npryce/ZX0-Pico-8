@@ -11,7 +11,7 @@ function zx0_decompress(
 	local last_offset = 1
 	local last_byte = 0
 	local bit_mask = 0
-	local backtrack = false
+	local backtrack
 	local bit_value
 
 	local function read_byte()
