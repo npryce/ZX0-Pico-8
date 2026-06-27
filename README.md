@@ -35,13 +35,13 @@ The expected behaviours of the adapter functions are:
 get_input_byte: (offset) -> byte
 ```
 
-Return the next byte of compressed compressed.  The offset from the start of the stream is passed as a parameter, which can be used to simplify the implementation when the compressed data is being fetched from indexable storage, such as memory or a string.
+Return the next byte of compressed data.  The offset from the start of the stream is passed as a parameter, which can be used to simplify the implementation when the compressed data is being fetched from indexable storage, such as memory or a string.
 
 ```
 get_output_byte: (offset) -> byte
 ```
 
-Return a byte of uncompressed data that was stored previously during decompression.  The offset of the byte is passed as a parameter and must be used to calculate the real index of the byte in the output data.
+Return a byte of uncompressed data that was stored previously during decompression.  The offset of the byte from the start of the output data is passed as a parameter and must be used to calculate the real index of the byte in the output data.
 
 ```
 set_output_byte: (offset, byte) -> nil
