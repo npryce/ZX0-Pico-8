@@ -6,13 +6,13 @@ function zx0_decompress(
  get_output_byte,
  set_output_byte
 )
-	local last_byte = 0
-	local backtrack = false
-	local bit_mask = 0
-	local bit_value
-	local last_offset = 1
 	local input_count = 0
 	local output_count = 0
+	local last_offset = 1
+	local last_byte = 0
+	local bit_mask = 0
+	local backtrack = false
+	local bit_value
 
 	local function read_byte()
 		last_byte = get_input_byte(input_count)
