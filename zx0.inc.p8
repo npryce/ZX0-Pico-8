@@ -47,7 +47,7 @@ function zx0_decompress(
 		output_count += 1
 	end
 
-	local function copy_bytes(n)
+	local function copy_output(n)
 		for _ = 1,n do
 			write_byte(
 				get_output_byte(
@@ -55,46 +55,19 @@ function zx0_decompress(
 		end
 	end
 
-	local copy_literals, copy_from_last_offset, copy_from_new_offset
+  ::copy_literals::
+    for _ = 1, read_var(0) do write_byte(read_byte()) end
+    if (read_bit() == 1) goto copy_from_new_offset
 
-	copy_literals = function()
-		for _ = 1,read_var(0) do
-			write_byte(read_byte())
-		end
+  ::copy_from_last_offset::
+    copy_output(read_var(0)) goto loop
 
-		if read_bit() == 0 then
-			return copy_from_last_offset()
-		else
-			return copy_from_new_offset()
-		end
-	end
+  ::copy_from_new_offset::
+    msb = read_var(1)
+    if (msb == 256) return
+    lsb = read_byte() \ 2
+    last_offset, backtrack = msb * 128 - lsb, true
+    copy_output(read_var(0) + 1)
 
-	copy_from_last_offset = function()
-		copy_bytes(read_var(0))
-
-		if read_bit() == 0 then
-			return copy_literals()
-		else
-			return copy_from_new_offset()
-		end
-	end
-
-	copy_from_new_offset = function()
-		local msb = read_var(1)
-		if (msb == 256) return
-
-        local lsb = (read_byte() >> 1)\1
-		last_offset = (msb * 128) - lsb
-		backtrack = true
-
-		copy_bytes(read_var(0) + 1)
-
-		if read_bit() == 0 then
-			return copy_literals()
-		else
-			return copy_from_new_offset()
-		end
-	end
-
-	copy_literals()
+  ::loop:: if (read_bit() == 0) goto copy_literals else goto copy_from_new_offset
 end
