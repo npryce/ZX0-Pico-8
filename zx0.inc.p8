@@ -36,7 +36,8 @@ function zx0_decompress(
 	local function read_var(invert)
 		local v = 1
 		while read_bit() == 0 do
-			v = (v<<1)|(read_bit()^^invert)
+			v <<= 1
+			v |= read_bit() ^^ invert
 		end
 		return v
 	end
