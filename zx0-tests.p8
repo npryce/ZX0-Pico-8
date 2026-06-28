@@ -20,6 +20,12 @@ __lua__
 
 #include zx0-table-get.inc.p8
 
+
+-- input from strings
+
+#include zx0-str-get.inc.p8
+
+
 -- output to string vars
 
 #include zx0-strvar-io.inc.p8
@@ -101,9 +107,71 @@ aRE FULL OF PASSIONATE INTENSITY.]],
 	);
 }
 -->8
+-- streaming tests
+
+function yielding(output)
+ return function(i,v)
+ 	output(i,v)
+ 	yield(v)
+ end
+end
+
+function nextbyte(c)
+ local alive,c = coresume(c)
+ return alive and c or nil
+end
+
+
+
+function streaming_test()
+ local original = 
+   "abra abracadabra"
+	
+	local compressed =
+		 "゜abra ロつcdレラUX"
+	
+	-- ensure persistent memory
+	-- does not leak between tests
+ memset(0x8000,0,#original)
+	
+	local c = cocreate(
+	 function()
+			zx0_decompress(
+			 str_get(compressed),
+				mem_get(0x8000),
+				yielding(mem_set(0x8000)))
+		end)
+	
+	-- process each byte of
+	-- decompressed data. 
+	-- in a real program, this 
+	-- would be a recursive-
+	-- descent parser that parses
+	-- the decompressed data.
+	
+	local a_count = 0
+	repeat
+	 local b = nextbyte(c)
+	 if chr(b) == "a" then
+	  a_count += 1
+	 end
+	until b == nil
+	
+	assert_eq {
+	 message = "number of a chars",
+		expected = 7,
+		actual = a_count
+	}
+end
+
+
+-->8
 #include pico8unit.inc.p8
 
-tests = zx0_tests
+tests = {
+  decompression=zx0_tests,
+  streaming = streaming_test
+}
 
 __label__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
