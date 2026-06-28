@@ -368,6 +368,10 @@ function draw_results()
 	 local r = results[i]
 	 
 	 local msg = ""
+	 for d = 1,r.depth do
+	  msg = msg .. "   "
+	 end
+
 	 if r.type == "suite" then
 	  msg = msg .. 
 	   "⁶:3e213f21211f0000"
@@ -377,10 +381,6 @@ function draw_results()
 	 else
 	  msg = msg .. 
 	   "⁶:110a040a11000000"
-	 end
-	 
-	 for d = 1,r.depth do
-	  msg = msg .. "…"
 	 end
 	 
 	 msg = msg .. " " .. r.name
@@ -454,7 +454,7 @@ function assert_eq(t)
    end
  
  local prefix
- if t.message then
+ if t.message ~= nil then
   prefix = t.message .. "\n"
  else
   prefix = ""
