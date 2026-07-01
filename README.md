@@ -2,7 +2,9 @@
 
 [ZX0](https://github.com/einar-saukas/ZX0) is a data compressor that provides a tradeoff between high compression ratio, and extremely simple fast decompression. It's especially appropriate for low-end platforms, including 8-bit computers like the ZX Spectrum.
 
-This is an implementation of ZX0 decompression for Pico-8. The decompression function uses 195 tokens.
+This is an implementation of ZX0 decompression for Pico-8.
+
+The decompressor function uses 168 tokens, thanks to some creative token optimisation by @pancelor and @noelle on the Pico-8 Discord. If you also need to optimise the character count, run the code through [Shrinko8](https://github.com/thisismypassport/shrinko8) to replace readable names with single characters, etc.
 
 
 ## Compress
@@ -103,3 +105,10 @@ Both functions translate zero-based byte offsets to 1-based character indices. E
 `table_set(t)` returns a function that sets bytes into list table _t_.
 
 Both functions translate zero-based byte offsets to 1-based table indices. E.g. the byte with offset 0 is at table index 1.
+
+
+# Discussion
+
+You can discuss this library in the Pico-8 Discord here: https://discord.com/channels/215267007245975552/1519953142312210553.
+
+Or on the Pico-8 BBS here: https://www.lexaloffle.com/bbs/?tid=157760
