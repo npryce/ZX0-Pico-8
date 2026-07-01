@@ -1,74 +1,40 @@
 pico-8 cartridge // http://www.pico-8.com
 version 43
 __lua__
-function zx0_decompress(
- get_input_byte,
- get_output_byte,
- set_output_byte
-)
-	local
-	 input_count,
-	 output_count,
-	 last_offset,
-	 last_byte,
-	 bit_mask,
-	 backtrack,
-	 bit_value
-	 = unpack(split"0,0,1,0,0")
+function zx0_decompress(get_in, get_out, set_out)
+	local offset, shift, i, o, byte, last, temp, v = 1, 0, -1, 0
 
-	local function read_byte()
-		last_byte = get_input_byte(input_count)
-		input_count += 1
-		return last_byte
+	local function rbyte()
+		i += 1
+		return get_in(i)
 	end
 
-	local function read_bit()
-		if backtrack then
-			backtrack = false
-			return last_byte & 1
-		else
-			bit_mask = bit_mask\2
-			if (bit_mask == 0) bit_value,bit_mask = read_byte(),128
-			return min(1, bit_value & bit_mask)
+	local function rbit()
+		if last then
+			temp, last = last & 1
+			return temp
 		end
+		if (shift == 0) byte, shift = rbyte(), 8
+		shift -= 1
+		return byte >> shift & 1
 	end
 
-	local function read_var(invert)
-		local v = 1
-		while (read_bit() == 0) v <<= 1; v |= read_bit() ^^ invert
+	local function rvar(inv)
+		v = 1
+		while (rbit() == 0) v <<= 1 v |= rbit() ^^ inv
 		return v
 	end
 
-	local function write_byte(b)
-		set_output_byte(output_count, b)
-		output_count += 1
-	end
-
-	local function copy_output(n)
-		for _ = 1,n do
-			write_byte(
-				get_output_byte(
-					output_count-last_offset))
-		end
-	end
-
- ::copy_literals::
-  for _ = 1, read_var(0) do write_byte(read_byte()) end
-  if (read_bit() == 1) goto copy_from_new_offset
-
- ::copy_from_last_offset::
-  copy_output(read_var(0)) 
-  goto loop
-
- ::copy_from_new_offset::
-  msb = read_var(1)
-  if (msb == 256) return
-  lsb = read_byte() \ 2
-  last_offset, backtrack = 
-  	msb * 128 - lsb, true
-  copy_output(read_var(0) + 1)
- 
- ::loop:: 
- if (read_bit() == 0) goto copy_literals
- goto copy_from_new_offset
+	::copy_literals::
+	for _ = 1, rvar"0" do set_out(o, rbyte()) o+=1 end
+	if (rbit() == 0) rvar"0" goto copy_from_last_offset
+	::copy_from_new_offset::
+	if (rvar"1" == 256) return
+	last = rbyte()
+	offset, v = v * 128 - last \ 2, rvar"0" + 1
+	::copy_from_last_offset::
+	for _ = 1, v do set_out(o, get_out(o - offset)) o+=1 end
+	::loop::
+	if (rbit() == 0) goto copy_literals
+	goto copy_from_new_offset
 end
