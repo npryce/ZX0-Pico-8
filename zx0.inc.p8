@@ -69,5 +69,6 @@ function zx0_decompress(
   copy_output(read_var(0) + 1)
  
  ::loop:: 
- if (read_bit() == 0) goto copy_literals else goto copy_from_new_offset
+ if (read_bit() == 0) goto copy_literals
+ goto copy_from_new_offset
 end
